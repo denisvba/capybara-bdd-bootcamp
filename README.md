@@ -5,28 +5,30 @@
 - Most of it is in ptBR
 - To be revisited sometime in the near future.
 
+
 ------------------------------------------------------------------
 
 
-Run: $ bundle init
+Run: `$ bundle init`
 
-Edit your newly created "Gemfile" file with your requirements (delete anything else):
+Edit your newly created `Gemfile` file with your requirements (delete anything else):
 
+```ruby
 # frozen_string_literal: true
 
 source "https://rubygems.org"
-{code}
+
 gem "capybara"
 gem "cucumber"
 gem "rspec"
 gem "selenium-webdriver"
-{code}
+```
 
-Save and run: $ bundle install
+Save and run: `$ bundle install`
 
-Edit your newly created "env.rb" with:
+Edit your newly created `env.rb` with:
 
-{code}
+```ruby
 require "capybara/cucumber"
 require "selenium-webdriver"
 
@@ -34,18 +36,18 @@ Capybara.configure do |config|
     config.default_driver = :selenium_chrome_headless
     config.app_host = "http://localhost:30100/" # add here proper IP
 end
-{code}
+```
 use your own host link, if available.
 
-Then, save and run: $ cucumber --init
+Then, save and run: `$ cucumber --init`
 
-Create a new folder named "specs" inside "features".
-Create a new file, with a name like "Cadastro de usuário.feature"
+Create a new folder named `specs` inside `features`.
+Create a new file, with a name like `Cadastro de usuário.feature`
 
-To change supported Gherkin languages, start the file with {{#language:pt}} where pt is the lang code.
+To change supported Gherkin languages, start the file with `#language:pt` where pt is the lang code.
 The basic format is:
 
-{code}
+```gherkin
 Feature:<Feature name>
     <feature description>
 
@@ -66,17 +68,16 @@ Feature:<Feature name>
     |Maria|maria@maria.com.br||Informar uma senha.|
     |Maria|maria#maria.com.br|123456|Informe um email váido.|
     |Maria|maria@maria.com.br|12345|Sua senha deve ter pelo menos 6 caracteres|
+```
 
-{code}
+Run `$ cucumber`
+and copy the steps output to a new file, `cadastro_de_usuario_steps.rb` under `step_definitions`
 
-Run $ cucumber
-and copy the steps output to a new file, "cadastro_de_usuario_steps.rb" under step_definitions
-
-Create a folder named "pages" under "support". Then create a file "cadastro_de_usuarios_page.rb" inside this new folder.
+Create a folder named `pages` under `support`. Then create a file `cadastro_de_usuarios_page.rb` inside this new folder.
 
 Since we are using capybara, start the file with:
 
-{code}
+```ruby
 class CadastroUsuarioPage
 
     include Capybara::DSL
@@ -85,23 +86,25 @@ class CadastroUsuarioPage
     find("#register_email").set email
     find("#register_password").set senha
     click_button "Cadastrar"
-{code}
+```
 
-Find in the Chrome console if the id is visible: $("#register_name");
+Find in the Chrome console if the id is visible: `$("#register_name");`
 
-add {{gem "faker"}} to the Gemfile and run bundle install again
+add `gem "faker"` to the Gemfile and run bundle install again
 
-Create a file "hooks.rb" under support.
+Create a file `hooks.rb` under support.
 add the following lines to it:
-{code}
+
+```ruby
 Before do
     @cadastro_de_usuario_page = CadastroUsuarioPage.new
 end
-{code}
-This initializes an object pointing to "cadastro_de_usuarios_page.rb" file
+```
 
-Refactor the "cadastro_de_usuarios_steps.rb" with:
-{code}
+This initializes an object pointing to `cadastro_de_usuarios_page.rb` file
+
+Refactor the `cadastro_de_usuarios_steps.rb` with:
+```ruby
 require "faker"
 
 Dado("que eu acesso a página de cadastro do usuário") do
@@ -118,31 +121,32 @@ end
 Então("meu perfil é cadastrado com sucesso") do
   expect(find("#task-board")).to have_content "Olá, #{@nome}"
 end
-{code}
+```
 
 Great!! This is our first test running.
 
-You can watch it run if you erase the "_headless" from this line {{config.default_driver = :selenium_chrome}} in the env.rb file.
+You can watch it run if you erase the `_headless` from this line `config.default_driver = :selenium_chrome` in the `env.rb` file.
 
-The test is using Faker to generate name and strings. 
-When you call for @nome, it calls for the object we defined in the  hooks.rb. 
-Using "#{Faker::Lorem.characters(number: 8)}@denisvba.com" we concatenate the Faker generated string to @denisvba.com.
+The test is using **Faker** to generate name and strings. 
+When you call for `@nome`, it calls for the object we defined in the  `hooks.rb`. 
+Using `#{Faker::Lorem.characters(number: 8)}@denisvba.com` we concatenate the Faker generated string to @denisvba.com.
 
-To set a default timeout to Capybara, add to the env.rb:
-{{Capybara.default_max_wait_time = 5}}
+To set a default timeout to Capybara, add to the `env.rb`:
+```ruby
+Capybara.default_max_wait_time = 5
+```
 
-Append to cadastro_de_usuario_page.rb:
-{code}
-
+Append to `cadastro_de_usuario_page.rb`:
+```ruby
     def mensagem_alerta
         find(".alert-message")
     end
-{code}
+```
 
-Make sure any strings used in the Cadastro de usuario.feature are correct for the expected results.
+Make sure any strings used in the `Cadastro de usuario.feature` are correct for the expected results.
 
-Now replace the last lines the cadastro_de_usuario_steps.rb:
-{code}
+Now replace the last lines the `cadastro_de_usuario_steps.rb`:
+```ruby
 Quando("faço meu cadastro com meu {string}, {string} e {string}") do |nome, email, senha|
   @cadastro_de_usuario_page.cadastro_de_usuario(nome, email, senha)
 end
@@ -150,4 +154,4 @@ end
 Então("devo ver a seguinte {string}") do |msgalerta|
   expect(@cadastro_de_usuario_page.mensagem_alerta).to have_content msgalerta
 end
-{code}
+```
